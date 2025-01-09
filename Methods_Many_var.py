@@ -1,5 +1,3 @@
-import math as m
-
 def f(x):
     return 2 * x[0]**2 + x[1]**2 + x[0]*x[1] + x[0] + x[1]
 
@@ -13,18 +11,19 @@ def grad_f(x):
 # start point
 x0 = [0,0]
 # accelerating parameter
-alpha = 1
 lamb0 = 1
 epsilon = 1e-6
 
-def hook_jiws(x0, lamb, epsilon):
+def hook_jiws(x0, lambd, epsilon):
     xk = x0.copy()
-    lamb0 = lamb
+    lamb_0 = float(lambd)
+    lamb = lamb_0
     iterations = 0
+    alpha = 1
+    # fails
+    p = 0
     while lamb >= epsilon:
         iterations += 1
-        # fails
-        p = 0
         elems = [xk]
         # пройти по координатам точки
         for i in range(len(xk)):
@@ -58,17 +57,18 @@ def hook_jiws(x0, lamb, epsilon):
         min_x = elems[func_values.index(min_f)]
         f_x = f(xk)
         # и сравнить значений
-        if round(min_f,6) >= round(f_x,6):
+        if round(min_f,4) >= round(f_x,4):
             p += 1
             # не получилось, надо изменить "шаг"
-            lamb = lamb - (lamb0/m.exp(p))
+            # lamb = lamb - (lamb_0 / m.exp(p))
+            lamb /= 2.0
         else:
             xk = xk
             for i in range(len(min_x)):
                 # получилось, по формуле x0 переходит в следующую итерацию
                 min_x[i] -= xk[i]
                 min_x[i] *= alpha
-                xk[i] += min_x[i]
+                xk[i] = min_x[i] + xk[i]
             p = 0
         # очистить списки точек, все операции в итерации завершены
         func_values.clear()
@@ -78,12 +78,16 @@ def hook_jiws(x0, lamb, epsilon):
 
 
 def gradient_const(x0, lamb, epsilon):
+    # точки
     xk = x0.copy()
     xk_1 = xk.copy()
     iterations = 1
+    # найти градиент в точке
     g = grad_f(xk)
+    # пройти в направлении, противоположном градиенту
     for i in range(len(xk)):
         xk_1[i] = xk[i] - g[i] * lamb
+
     while abs(f(xk_1)-f(xk)) >= epsilon:
         iterations += 1
         xk = xk_1.copy()
@@ -94,15 +98,8 @@ def gradient_const(x0, lamb, epsilon):
             lamb /= 2
     return xk_1, f(xk_1), iterations
 
-
-print(x0)
-
-print(f(x0))
-
 print(f"т. мин = {hook_jiws(x0, lamb0, epsilon)[0]} мин. знач. = {hook_jiws(x0, lamb0, epsilon)[1]} "
       f"кол-во итераций {hook_jiws(x0, lamb0, epsilon)[2]}")
-
-print(x0)
 
 print(f"т. мин = {gradient_const(x0,lamb0,epsilon)[0]} мин. знач. = {gradient_const(x0,lamb0,epsilon)[1]} "
       f"кол-во итераций {gradient_const(x0,lamb0,epsilon)[2]}")

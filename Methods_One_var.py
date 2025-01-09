@@ -1,4 +1,3 @@
-import numpy as np
 from matplotlib import pyplot as plt
 import math
 from sympy import *
@@ -47,6 +46,7 @@ def graphic(a,b):
     pass
 
 
+# отрисовка графика функции, домноженной на (-1)
 def df_graphic(a,b):
     plt.grid(true)
     i = a
@@ -62,9 +62,9 @@ def df_graphic(a,b):
 
 
 # точки отрезка и точность
-a = -2.7
-b = -1.6
-epsilon = 1e-6
+a = 0
+b = 3
+epsilon = 1e-1
 
 
 # метод золотого сечения
@@ -131,6 +131,33 @@ def gold_glowing_minus(a, b, epsilon):
     ymin = f(xmin)
     return xmin, ymin, iterations
 
+
+def dixotomy_minus(a, b, epsilon, delta):
+    ak = a
+    bk = b
+    eps = epsilon
+    delt = delta
+    x1 = (ak + bk - delt)/2
+    x2 = (ak + bk + delt)/2
+    iterations = 0
+    while abs(bk - ak) >= eps:
+        iterations += 1
+        if f_minus(x1) >= f_minus(x2):
+            ak = x1
+            bk = bk
+            x1 = (ak + bk - delt)/2
+            x2 = (ak + bk + delt) / 2
+        else:
+            ak = ak
+            bk = x2
+            x2 = (ak + bk + delt) / 2
+            x1 = (ak + bk - delt)/2
+
+    xmin = (ak + bk) / 2
+    ymin = f(xmin)
+    return xmin, ymin, iterations
+
+
 # функция поиска пересечения двух касательных (точки на входе - переменные,
 # от которых находится производная функции)
 def intersection(xl, xr):
@@ -146,12 +173,12 @@ def intersection_minus(xl,xr):
 def tangles(a, b, epsilon):
     # найти точку пересечения касательных к функции в концах заданного отрезка
     xm = intersection(a, b)
-    xm_1 = xm * 10000
+    xm_1 = b
     # завести количество итераций для метода
     iterations = 0
     # в сущности необходима близость модуля производной искомой точки к нулю
     # из-за использования импортируемых функций (numpy diff) точность ниже 10^(-4) вызывает ошибку
-    while abs(df(xm)) >= epsilon and abs(f(xm)-f(xm_1)-df(xm_1)*(xm-xm_1))>=epsilon:
+    while abs(f(xm)-f(xm_1)-df(xm_1)*(xm-xm_1))>=epsilon:
         # print(xm)
         iterations += 1
         # Найти правые и левые точки пересечения касательных к ф. в концах отрезка с оной в ранее найденной т.
@@ -197,7 +224,7 @@ def tangles_minus(a, b, epsilon):
     return xm, f(xm), iterations
 
 # метод Ньютона
-def newton(a, b, epsilon):
+def newton(a, epsilon):
     # обозначить точки для итерации (текущая и следующая)
     xk = a
     xk_1 = a+0.1
@@ -241,17 +268,18 @@ def vipuklost(a,b):
     return True
 
 def main():
-    print("метод нулевого порядка в любом случае найдёт минимум")
-    print(gold_glowing(a,b,epsilon))
+    # print("метод нулевого порядка в любом случае найдёт минимум")
+    # print(gold_glowing(a,b,epsilon))
     if not vipuklost(a,b):
-        print("Метод первого и второго порядка не найдут минимум функции")
-        print("Тогда можно найти максимум (экстремум) функции")
-        print(gold_glowing_minus(a,b,epsilon))
-        print(tangles_minus(a,b,epsilon))
+        # print("Метод первого и второго порядка не найдут минимум функции")
+        # print("Тогда можно найти максимум (экстремум) функции")
+        # print(gold_glowing_minus(a,b,epsilon))
+        # print(tangles_minus(a,b,epsilon))
         print(newton_minus(a,b,epsilon))
     else:
-        print(tangles(a,b,epsilon))
+        # print(tangles(a,b,epsilon))
         print(newton(a,b,epsilon))
-    graphic(a,b)
-    df_graphic(a,b)
+
+    # graphic(a,b)
+    # df_graphic(a,b)
 main()
